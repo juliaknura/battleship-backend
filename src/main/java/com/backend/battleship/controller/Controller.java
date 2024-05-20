@@ -33,11 +33,20 @@ public class Controller {
     }
 
     @PostMapping("/post/board")
-    public ResponseEntity<String> board(@RequestBody BoardState boardState)
+    public ResponseEntity<Boolean> board(@RequestBody BoardState boardState)
     {
         log.info("Received board state "+boardState);
         //TODO filler
-        return ResponseEntity.ok("Board posted correctly");
+        if(true) //true if both players uploaded board, false if not
+        {
+            //websocket msg
+            simpMessagingTemplate.convertAndSend("/topic/2345/board/1",true);
+            return ResponseEntity.ok(true);
+        }
+        else {
+            return ResponseEntity.ok(false);
+        }
+
     }
 
     @PostMapping("/post/move")
