@@ -94,10 +94,10 @@ public class GameService {
             ((ComputerGame) game).setPlayerBoard(boardState.getBoard());
             log.info("Creating random board for computer for gameID: "+game.getGameID());
             ((ComputerGame) game).setComputerBoard(createRandomBoard());
-            int[][] computerView = new int[BOARD_SIZE][BOARD_SIZE];
-            for(int[] row: computerView)
-                Arrays.fill(row,SquareEnum.HIDDEN.getValue());
-            ((ComputerGame) game).setComputerViewBoard(computerView);
+
+            ((ComputerGame) game).setComputerViewBoard(createEmptyView());
+            ((ComputerGame) game).setPlayerViewBoard(createEmptyView());
+
             return null;
         }
         else
@@ -106,12 +106,14 @@ public class GameService {
             {
                 log.info("Setting board for player 1");
                 ((PVPGame) game).setP1board(boardState.getBoard());
+                ((PVPGame) game).setP1ViewBoard(createEmptyView());
                 return ((PVPGame) game).getP2board() != null;
             }
             else if(boardState.getPlayerType() == 2)
             {
                 log.info("Setting board for player 2");
                 ((PVPGame) game).setP2board(boardState.getBoard());
+                ((PVPGame) game).setP2ViewBoard(createEmptyView());
                 return ((PVPGame) game).getP1board() != null;
             }
             else
@@ -148,6 +150,8 @@ public class GameService {
             {
                 result.setResult(true);
                 ((ComputerGame) game).getComputerBoard()[x][y] = SquareEnum.SUNK.getValue();
+                if(((ComputerGame) game).getPlayerViewBoard()[x][y] == SquareEnum.HIDDEN.getValue())
+                    ((ComputerGame) game).getPlayerViewBoard()[x][y] = SquareEnum.SHIP.getValue();
                 if(isShipSunk(((ComputerGame) game).getComputerBoard(),new Coord(x,y)))
                 {
                     result.setSunk(true);
@@ -159,12 +163,18 @@ public class GameService {
                     newStatus = GameStatus.PLAYER_1_WIN;
             }
             else
+            {
+                if(((ComputerGame) game).getPlayerViewBoard()[x][y] == SquareEnum.HIDDEN.getValue())
+                    ((ComputerGame) game).getPlayerViewBoard()[x][y] = SquareEnum.EMPTY.getValue();
                 result.setResult(false);
+            }
+
 
             log.info("Setting game status as: "+newStatus);
             game.setStatus(newStatus);
             GameStorage.getInstance().addGame(game);
             result.setGameStatus(newStatus.getValue());
+            result.setBoardView(((ComputerGame) game).getPlayerViewBoard());
 
         }
         else if(game instanceof PVPGame)
@@ -175,6 +185,8 @@ public class GameService {
                 {
                     result.setResult(true);
                     ((PVPGame) game).getP2board()[x][y] = SquareEnum.SUNK.getValue();
+                    if(((PVPGame)game).getP1ViewBoard()[x][y] == SquareEnum.HIDDEN.getValue())
+                        ((PVPGame)game).getP1ViewBoard()[x][y] = SquareEnum.SHIP.getValue();
                     if(isShipSunk(((PVPGame) game).getP2board(),new Coord(x,y)))
                     {
                         result.setSunk(true);
@@ -186,7 +198,13 @@ public class GameService {
                         newStatus = GameStatus.PLAYER_1_WIN;
                 }
                 else
+                {
+                    if(((PVPGame)game).getP1ViewBoard()[x][y] == SquareEnum.HIDDEN.getValue())
+                        ((PVPGame)game).getP1ViewBoard()[x][y] = SquareEnum.HIDDEN.getValue();
                     result.setResult(false);
+                }
+
+                result.setBoardView(((PVPGame)game).getP1ViewBoard());
             }
             else if(moveRequest.getPlayerType()==2)
             {
@@ -194,6 +212,8 @@ public class GameService {
                 {
                     result.setResult(true);
                     ((PVPGame)game).getP1board()[x][y] = SquareEnum.SUNK.getValue();
+                    if(((PVPGame)game).getP2ViewBoard()[x][y] == SquareEnum.HIDDEN.getValue())
+                        ((PVPGame)game).getP2ViewBoard()[x][y] = SquareEnum.SHIP.getValue();
                     if(isShipSunk(((PVPGame) game).getP1board(),new Coord(x,y)))
                     {
                         result.setSunk(true);
@@ -205,7 +225,13 @@ public class GameService {
                         newStatus = GameStatus.PLAYER_2_WIN;
                 }
                 else
+                {
+                    if(((PVPGame)game).getP2ViewBoard()[x][y] == SquareEnum.HIDDEN.getValue())
+                        ((PVPGame)game).getP2ViewBoard()[x][y] = SquareEnum.HIDDEN.getValue();
                     result.setResult(false);
+                }
+
+                result.setBoardView(((PVPGame)game).getP2ViewBoard());
             }
             else
                 throw new IllegalArgumentException("Invalid player type: "+moveRequest.getPlayerType());
@@ -457,6 +483,14 @@ public class GameService {
     private boolean inBoard(Coord a, Coord b)
     {
         return inBoard(new Coord(a.getX()+b.getX(),a.getY()+b.getY()));
+    }
+
+    private int[][] createEmptyView()
+    {
+        int[][] view = new int[BOARD_SIZE][BOARD_SIZE];
+        for(int[] row: view)
+            Arrays.fill(row,SquareEnum.HIDDEN.getValue());
+        return view;
     }
 
 }

@@ -10,4 +10,5 @@ public class MoveResult {
     private boolean result;
     private boolean sunk;
     private int gameStatus;
+    private int[][] boardView;
 }

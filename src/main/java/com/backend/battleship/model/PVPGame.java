@@ -10,4 +10,6 @@ public class PVPGame extends Game{
     private int[][] p2board;
     private int p1sunk;
     private int p2sunk;
+    private int[][] p1ViewBoard;
+    private int[][] p2ViewBoard;
 }
