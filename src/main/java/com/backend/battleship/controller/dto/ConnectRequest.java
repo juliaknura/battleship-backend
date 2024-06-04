@@ -6,6 +6,6 @@ import lombok.Data;
 
 @Data
 public class ConnectRequest {
-    private Player player; //TODO
+    private Player player;
     private GameMode mode;
 }

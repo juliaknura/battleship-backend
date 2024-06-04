@@ -8,5 +8,6 @@ import lombok.Data;
 public class MoveResult {
     private Coord coord;
     private boolean result;
-    private GameStatus gameStatus;
+    private boolean sunk;
+    private int gameStatus;
 }

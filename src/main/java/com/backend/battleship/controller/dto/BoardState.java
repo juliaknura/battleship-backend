@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class BoardState {
     private int [][] board;
-    private int gameID;
-    private int playerType; //TODO
+    private String gameID;
+    private int playerType;
 }

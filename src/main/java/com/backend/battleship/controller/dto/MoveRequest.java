@@ -7,5 +7,5 @@ import lombok.Data;
 public class MoveRequest {
     private Coord coord;
     private int playerType;
-    private int gameID;
+    private String gameID;
 }

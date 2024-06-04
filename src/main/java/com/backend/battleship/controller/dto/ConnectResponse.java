@@ -1,9 +1,11 @@
 package com.backend.battleship.controller.dto;
 
+import com.backend.battleship.model.Player;
 import lombok.Data;
 
 @Data
 public class ConnectResponse {
     private int playerType;
-    private int gameID;
+    private String gameID;
+    private Player opponent;
 }
