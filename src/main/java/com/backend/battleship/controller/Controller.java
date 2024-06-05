@@ -47,7 +47,7 @@ public class Controller {
             if(result == null)
             {
                 log.info("Returning board response: true");
-                return ResponseEntity.ok(new BoardResponse(true));
+                return ResponseEntity.ok(new BoardResponse(true, boardState.getBoard()));
             }
             else if(result)
             {
@@ -56,21 +56,21 @@ public class Controller {
                     topic += "2";
                 else
                     topic += "1";
-                simpMessagingTemplate.convertAndSend(topic,new BoardResponse(true));
+                simpMessagingTemplate.convertAndSend(topic,new BoardResponse(true, boardState.getBoard()));
                 log.info("Returning board response: true");
-                return ResponseEntity.ok(new BoardResponse(true));
+                return ResponseEntity.ok(new BoardResponse(true, boardState.getBoard()));
             }
             else
             {
                 log.info("Returning board response: false");
-                return ResponseEntity.ok(new BoardResponse(false));
+                return ResponseEntity.ok(new BoardResponse(false, boardState.getBoard()));
             }
 
         }
         catch(IllegalArgumentException e)
         {
             log.error(e.getMessage());
-            return new ResponseEntity<>(new BoardResponse(false), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new BoardResponse(false, boardState.getBoard()), HttpStatus.NOT_FOUND);
         }
 
     }
