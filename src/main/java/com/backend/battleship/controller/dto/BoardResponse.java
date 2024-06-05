@@ -7,4 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class BoardResponse {
     private boolean result;
+    private int[][] board;
 }
