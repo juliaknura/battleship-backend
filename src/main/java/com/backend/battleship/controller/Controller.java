@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -46,23 +47,32 @@ public class Controller {
             var result = gameService.initBoard(boardState);
             if(result == null)
             {
-                log.info("Returning board response: true");
+                log.info("Returning board response: true, "+ Arrays.deepToString(boardState.getBoard()));
                 return ResponseEntity.ok(new BoardResponse(true, boardState.getBoard()));
             }
             else if(result)
             {
                 String topic = "/topic/"+boardState.getGameID()+"/board/";
+                var game = (PVPGame)GameStorage.getInstance().getGames().get(boardState.getGameID());
+                int[][] otherPlayerBoard;
                 if(boardState.getPlayerType()==1)
+                {
                     topic += "2";
+                    otherPlayerBoard = game.getP2board();
+                }
                 else
+                {
                     topic += "1";
-                simpMessagingTemplate.convertAndSend(topic,new BoardResponse(true, boardState.getBoard()));
-                log.info("Returning board response: true");
+                    otherPlayerBoard = game.getP1board();
+                }
+
+                simpMessagingTemplate.convertAndSend(topic,new BoardResponse(true,otherPlayerBoard)); //sending to the other player their own board
+                log.info("Returning board response: true" + Arrays.deepToString(boardState.getBoard()));
                 return ResponseEntity.ok(new BoardResponse(true, boardState.getBoard()));
             }
             else
             {
-                log.info("Returning board response: false");
+                log.info("Returning board response: false" + Arrays.deepToString(boardState.getBoard()));
                 return ResponseEntity.ok(new BoardResponse(false, boardState.getBoard()));
             }
 
@@ -70,7 +80,7 @@ public class Controller {
         catch(IllegalArgumentException e)
         {
             log.error(e.getMessage());
-            return new ResponseEntity<>(new BoardResponse(false, boardState.getBoard()), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new BoardResponse(false, new int[10][10]), HttpStatus.NOT_FOUND);
         }
 
     }
