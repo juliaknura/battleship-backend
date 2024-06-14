@@ -16,6 +16,7 @@ import java.util.UUID;
 @Slf4j
 public class GameService {
 
+    private final DatabaseService databaseService;
     private final int BOARD_SIZE = 10;
     private final int SHIP_COUNT = 5;
     public ConnectResponse connectToGame(ConnectRequest request){
@@ -177,25 +178,32 @@ public class GameService {
             result.setBoardView(((ComputerGame) game).getPlayerViewBoard());
 
         }
-        else if(game instanceof PVPGame)
+        else if(game instanceof PVPGame pvpGame)
         {
             if(moveRequest.getPlayerType()==1)
             {
-                if(((PVPGame)game).getP2board()[x][y] == SquareEnum.SHIP.getValue())
+                if((pvpGame).getP2board()[x][y] == SquareEnum.SHIP.getValue())
                 {
                     result.setResult(true);
-                    ((PVPGame) game).getP2board()[x][y] = SquareEnum.SUNK.getValue();
-                    if(((PVPGame)game).getP1ViewBoard()[x][y] == SquareEnum.HIDDEN.getValue())
-                        ((PVPGame)game).getP1ViewBoard()[x][y] = SquareEnum.SHIP.getValue();
-                    if(isShipSunk(((PVPGame) game).getP2board(),new Coord(x,y)))
+                    (pvpGame).getP2board()[x][y] = SquareEnum.SUNK.getValue();
+                    if((pvpGame).getP1ViewBoard()[x][y] == SquareEnum.HIDDEN.getValue())
+                        (pvpGame).getP1ViewBoard()[x][y] = SquareEnum.SHIP.getValue();
+                    if(isShipSunk((pvpGame).getP2board(),new Coord(x,y)))
                     {
                         result.setSunk(true);
-                        ((PVPGame) game).setP2sunk(((PVPGame) game).getP2sunk()+1);
+                        (pvpGame).setP2sunk((pvpGame).getP2sunk()+1);
                     }
                     else
                         result.setSunk(false);
-                    if(((PVPGame) game).getP2sunk() == SHIP_COUNT)
+
+                    if((pvpGame).getP2sunk() == SHIP_COUNT) {
                         newStatus = GameStatus.PLAYER_1_WIN;
+                        databaseService.saveGameResult(
+                                pvpGame.getPlayer1().getNickname(),
+                                pvpGame.getPlayer2().getNickname(),
+                                true
+                                );
+                    }
                 }
                 else
                 {
@@ -221,8 +229,14 @@ public class GameService {
                     }
                     else
                         result.setSunk(false);
-                    if(((PVPGame) game).getP1sunk() == SHIP_COUNT)
+                    if(((PVPGame) game).getP1sunk() == SHIP_COUNT) {
                         newStatus = GameStatus.PLAYER_2_WIN;
+                        databaseService.saveGameResult(
+                                pvpGame.getPlayer1().getNickname(),
+                                pvpGame.getPlayer2().getNickname(),
+                                false
+                        );
+                    }
                 }
                 else
                 {
