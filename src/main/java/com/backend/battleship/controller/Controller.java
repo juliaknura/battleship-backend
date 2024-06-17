@@ -132,6 +132,6 @@ public class Controller {
     @GetMapping("/get/ranking")
     public ResponseEntity<List<Rank>> ranking()
     {
-        return ResponseEntity.ok(dbService.getTop10());
+        return ResponseEntity.ok(dbService.getTop10Players());
     }
 }
