@@ -251,7 +251,7 @@ public class GameService {
         GameStatus newStatus = GameStatus.IN_PROGRESS;
 
         var coord = chooseNextComputerMove(game.getComputerViewBoard());
-        result.setCoord(coord);
+        result.setCoord(new Coord(coord.getY(), coord.getX()));
         if(game.getPlayerBoard()[coord.getX()][coord.getY()] == SquareEnum.SHIP.getValue())
         {
             result.setResult(true);
@@ -299,6 +299,7 @@ public class GameService {
         GameStorage.getInstance().addGame(game);
         log.info("Viewboard after move: "+ Arrays.deepToString(game.getComputerViewBoard()));
 
+        result.setCoord(new Coord(result.getCoord().getX(), result.getCoord().getY()));
         return result;
     }
 
